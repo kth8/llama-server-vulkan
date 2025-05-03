@@ -11,8 +11,8 @@ on:
 
 env:
   IMAGE_NAME: llama-server-vulkan
-  MODEL: Qwen_Qwen3-1.7B
-  QUANT: Q4_K_M
+  MODEL: Qwen3-1.7B
+  QUANT: UD-Q4_K_XL
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
 
       - name: Download GGUF
         run: |
-          huggingface-cli download bartowski/${{ env.MODEL }}-GGUF --include "${{ env.MODEL }}-${{ env.QUANT }}.gguf" --local-dir .
+          huggingface-cli download unsloth/${{ env.MODEL }}-GGUF --include "${{ env.MODEL }}-${{ env.QUANT }}.gguf" --local-dir .
 
       - name: Checksum GGUF
         run: |
