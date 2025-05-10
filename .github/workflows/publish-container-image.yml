@@ -7,7 +7,7 @@ on:
       - "**.md"
       - "**.txt"
   schedule:
-    - cron: "0 0 * * 0"
+    - cron: "0 0 * * *"
 
 env:
   IMAGE_NAME: llama-server-vulkan
@@ -30,7 +30,7 @@ jobs:
 
       - name: Download GGUF
         run: |
-          huggingface-cli download unsloth/${{ env.MODEL }}-GGUF --include "${{ env.MODEL }}-${{ env.QUANT }}.gguf" --local-dir .
+          huggingface-cli download unsloth/${{ env.MODEL }}-GGUF --include ${{ env.MODEL }}-${{ env.QUANT }}.gguf --local-dir .
 
       - name: Checksum GGUF
         run: |
@@ -42,9 +42,6 @@ jobs:
         with:
           containerfiles: ./Containerfile
           image: ${{ env.IMAGE_NAME }}
-          build-args: |
-            MODEL=${{ env.MODEL }}
-            QUANT=${{ env.QUANT }}
           labels: |
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/main/README.md
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
@@ -56,7 +53,12 @@ jobs:
         id: container
         with:
           run: |
-            podman run -d -p 8001:8080 -e LLAMA_ARG_N_GPU_LAYERS=0 localhost/${{ env.IMAGE_NAME }}
+            podman run -d \
+            -p 8001:8080 \
+            -e LLAMA_ARG_N_GPU_LAYERS=0 \
+            -e LLAMA_ARG_MODEL=${{ env.MODEL }}-${{ env.QUANT }}.gguf \
+            -v ./${{ env.MODEL }}-${{ env.QUANT }}.gguf:/${{ env.MODEL }}-${{ env.QUANT }}.gguf \
+            localhost/${{ env.IMAGE_NAME }}
 
       - name: Wait for server to load
         uses: juliangruber/sleep-action@v2.0.0

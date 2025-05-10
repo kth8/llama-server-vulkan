@@ -1,17 +1,21 @@
-version: "3.8"
 services:
   llama-vulkan:
     image: ghcr.io/kth8/llama-server-vulkan:latest
     container_name: llama-vulkan
+    init: true
     restart: always
-    read_only: true
     devices:
       - /dev/kfd:/dev/kfd
       - /dev/dri:/dev/dri
-    tmpfs:
-      - /root/.cache/mesa_shader_cache
     ports:
       - "8001:8080"
+    volumes:
+      - llama:/root/.cache
     labels:
-      io.containers.autoupdate: "registry"
-    init: true
+      io.containers.autoupdate: registry
+    pull_policy: newer
+    environment:
+      LLAMA_ARG_HF_REPO: ggml-org/Qwen2.5-VL-3B-Instruct-GGUF
+
+volumes:
+  llama:
