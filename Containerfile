@@ -20,7 +20,6 @@ COPY --from=builder /llama.cpp/build/bin/llama-server .
 ENV LLAMA_ARG_HOST=0.0.0.0
 ENV LLAMA_ARG_PORT=8080
 ENV LLAMA_ARG_CTX_SIZE=8192
-ENV LLAMA_ARG_N_PARALLEL=3
 ENV LLAMA_ARG_N_GPU_LAYERS=99
 
 CMD ["/llama-server"]
