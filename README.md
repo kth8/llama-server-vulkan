@@ -10,7 +10,7 @@ docker container run \
   --publish 8001:8080 \
   --volume llama:/root/.cache \
   --label io.containers.autoupdate=registry \
-  --pull newer \
+  --pull always \
   --name llama-vulkan \
   --env LLAMA_ARG_HF_REPO=ggml-org/Qwen3-1.7B-GGUF \
   ghcr.io/kth8/llama-server-vulkan:latest
