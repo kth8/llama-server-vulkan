@@ -11,8 +11,8 @@ on:
 
 env:
   IMAGE_NAME: llama-server-vulkan
-  MODEL: Qwen3-1.7B
-  QUANT: UD-Q4_K_XL
+  # MODEL: Qwen3-1.7B
+  # QUANT: UD-Q4_K_XL
 
 jobs:
   build:
@@ -23,18 +23,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install huggingface-cli
-        uses: BSFishy/pip-action@v1
-        with:
-          packages: huggingface_hub[cli]
+      # - name: Install huggingface-cli
+      #   uses: BSFishy/pip-action@v1
+      #   with:
+      #     packages: huggingface_hub[cli]
 
-      - name: Download GGUF
-        run: |
-          huggingface-cli download unsloth/${{ env.MODEL }}-GGUF --include ${{ env.MODEL }}-${{ env.QUANT }}.gguf --local-dir .
+      # - name: Download GGUF
+      #   run: |
+      #     huggingface-cli download unsloth/${{ env.MODEL }}-GGUF --include ${{ env.MODEL }}-${{ env.QUANT }}.gguf --local-dir .
 
-      - name: Checksum GGUF
-        run: |
-          sha256sum ${{ env.MODEL }}-${{ env.QUANT }}.gguf
+      # - name: Checksum GGUF
+      #   run: |
+      #     sha256sum ${{ env.MODEL }}-${{ env.QUANT }}.gguf
 
       - name: Build Image with Buildah
         id: build_image
@@ -46,43 +46,43 @@ jobs:
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/main/README.md
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
             
-      - name: Start server
-        uses: mathiasvr/command-output@v2.0.0
-        id: container
-        with:
-          run: |
-            podman run -d \
-            -p 8001:8080 \
-            -e LLAMA_ARG_N_GPU_LAYERS=0 \
-            -e LLAMA_ARG_MODEL=${{ env.MODEL }}-${{ env.QUANT }}.gguf \
-            -v ./${{ env.MODEL }}-${{ env.QUANT }}.gguf:/${{ env.MODEL }}-${{ env.QUANT }}.gguf \
-            localhost/${{ env.IMAGE_NAME }}
+      # - name: Start server
+      #   uses: mathiasvr/command-output@v2.0.0
+      #   id: container
+      #   with:
+      #     run: |
+      #       podman run -d \
+      #       -p 8001:8080 \
+      #       -e LLAMA_ARG_N_GPU_LAYERS=0 \
+      #       -e LLAMA_ARG_MODEL=${{ env.MODEL }}-${{ env.QUANT }}.gguf \
+      #       -v ./${{ env.MODEL }}-${{ env.QUANT }}.gguf:/${{ env.MODEL }}-${{ env.QUANT }}.gguf \
+      #       localhost/${{ env.IMAGE_NAME }}
 
-      - name: Wait for server to load
-        uses: juliangruber/sleep-action@v2.0.0
-        with:
-          time: 15s
+      # - name: Wait for server to load
+      #   uses: juliangruber/sleep-action@v2.0.0
+      #   with:
+      #     time: 15s
 
-      - name: Get chat completion
-        uses: mathiasvr/command-output@v2.0.0
-        id: api
-        with:
-          run: |
-            curl -v \
-            -H "Content-Type: application/json" \
-            -d '{"messages":[{"role":"user","content":"who are you and what can you do?"}]}' \
-            http://127.0.0.1:8001/v1/chat/completions
+      # - name: Get chat completion
+      #   uses: mathiasvr/command-output@v2.0.0
+      #   id: api
+      #   with:
+      #     run: |
+      #       curl -v \
+      #       -H "Content-Type: application/json" \
+      #       -d '{"messages":[{"role":"user","content":"who are you and what can you do?"}]}' \
+      #       http://127.0.0.1:8001/v1/chat/completions
 
-      - name: Format response
-        uses: direct-actions/jq@v0.1.0
-        with:
-          input: ${{ steps.api.outputs.stdout }}
-          filter: ".choices[0].message.content"
-          raw-output: true
+      # - name: Format response
+      #   uses: direct-actions/jq@v0.1.0
+      #   with:
+      #     input: ${{ steps.api.outputs.stdout }}
+      #     filter: ".choices[0].message.content"
+      #     raw-output: true
 
-      - name: Print server logs
-        run: |
-          podman logs ${{ steps.container.outputs.stdout }}
+      # - name: Print server logs
+      #   run: |
+      #     podman logs ${{ steps.container.outputs.stdout }}
 
       - name: Push Image to GHCR
         uses: redhat-actions/push-to-registry@v2
