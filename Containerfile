@@ -1,7 +1,8 @@
 FROM almalinux:9-minimal AS builder
 RUN microdnf -y install vulkan-loader-devel glslc git gcc-c++ cmake libcurl-devel
 
-RUN git clone --depth 1 https://github.com/ggml-org/llama.cpp.git
+RUN git clone --depth 1 https://github.com/ggml-org/llama.cpp.git && \
+    sed -i 's#^\(.*\[GGML_TYPE_IQ1_M\].*\)$#// \1#' /llama.cpp/ggml/src/ggml-vulkan/ggml-vulkan.cpp
 
 RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -D GGML_VULKAN=ON \
     -DCMAKE_C_FLAGS="-march=sandybridge -mtune=generic -mno-avx -mno-avx2 -mno-bmi -mno-bmi2" \
