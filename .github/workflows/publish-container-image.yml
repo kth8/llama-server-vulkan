@@ -31,7 +31,7 @@ jobs:
 
       - name: Download GGUF
         run: |
-          huggingface-cli download unsloth/${{ env.MODEL }}-GGUF --include ${{ env.MODEL }}-${{ env.QUANT }}.gguf --local-dir .
+          hf download unsloth/${{ env.MODEL }}-GGUF --include ${{ env.MODEL }}-${{ env.QUANT }}.gguf --local-dir .
 
       - name: Checksum GGUF
         run: |
@@ -54,6 +54,7 @@ jobs:
           run: |
             podman run -d \
             -p 8000:8080 \
+            -e LLAMA_ARG_HOST=0.0.0.0 \
             -e LLAMA_ARG_N_GPU_LAYERS=0 \
             -e LLAMA_ARG_MODEL=${{ env.MODEL }}-${{ env.QUANT }}.gguf \
             -v ./${{ env.MODEL }}-${{ env.QUANT }}.gguf:/${{ env.MODEL }}-${{ env.QUANT }}.gguf \
