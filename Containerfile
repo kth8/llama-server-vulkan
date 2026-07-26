@@ -7,7 +7,7 @@ RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -D GGML_VULKAN=ON
     -DCMAKE_C_FLAGS="-march=sandybridge -mtune=generic -mno-avx -mno-avx2 -mno-bmi -mno-bmi2" \
     -DCMAKE_CXX_FLAGS="-march=sandybridge -mtune=generic -mno-avx -mno-avx2 -mno-bmi -mno-bmi2"
 
-RUN cmake --build llama.cpp/build --config Release -j --target llama-server
+RUN cmake --build llama.cpp/build --config Release -j8 --target llama-server
 
 FROM almalinux:9-minimal
 
